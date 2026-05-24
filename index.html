@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FinOps Value Map</title>
+  <meta name="description" content="An interactive map that connects cloud + AI consumption to business value. Built for the FinOps community." />
+
+  <meta property="og:title" content="The FinOps Value Map" />
+  <meta property="og:description" content="Connect the dots from cloud compute & AI to GMV, revenue, and customer outcomes." />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://unpkg.com" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <script src="https://unpkg.com/cytoscape@3.30.2/dist/cytoscape.min.js"></script>
+  <script src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"></script>
+  <script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-text">
+        <h1>The FinOps Value Map</h1>
+        <p>Connect the dots from cloud &amp; AI consumption to business value.</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="toggle" role="tablist" aria-label="Mode">
+        <button id="mode-forward" class="toggle-btn active" role="tab" aria-selected="true">
+          <span class="dot dot-forward"></span> Forward — value gained
+        </button>
+        <button id="mode-reverse" class="toggle-btn" role="tab" aria-selected="false">
+          <span class="dot dot-reverse"></span> Reverse — value at risk
+        </button>
+      </div>
+      <button id="reset-btn" class="ghost-btn" title="Clear selection">Reset</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="map-wrap">
+      <div class="cy-wrap">
+        <div id="layer-bands-bg" class="layer-bands-bg" aria-hidden="true"></div>
+        <div id="cy" class="cy"></div>
+      </div>
+      <div class="hint">Click any node to trace its full value chain. Click empty space to reset.</div>
+    </section>
+
+    <aside id="side-panel" class="side-panel empty">
+      <div class="side-empty">
+        <h2>Pick a node</h2>
+        <p>Click anything on the map — a business outcome, a service, or a cloud resource — and the connected chain will light up here.</p>
+        <ul class="legend">
+          <li><span class="layer-chip" data-layer="L1"></span> Business Outcome</li>
+          <li><span class="layer-chip" data-layer="L2"></span> Customer Journey</li>
+          <li><span class="layer-chip" data-layer="L3"></span> Product / Application</li>
+          <li><span class="layer-chip" data-layer="L4"></span> Microservice / Workload</li>
+          <li><span class="layer-chip" data-layer="L5"></span> Platform / Middleware</li>
+          <li><span class="layer-chip" data-layer="L6"></span> Cloud Resource</li>
+        </ul>
+      </div>
+
+      <div class="side-detail" hidden>
+        <div class="side-header">
+          <span id="detail-layer" class="layer-tag"></span>
+          <h2 id="detail-title"></h2>
+        </div>
+        <p id="detail-desc" class="detail-desc"></p>
+        <div id="detail-examples-wrap" hidden>
+          <h4>Examples</h4>
+          <p id="detail-examples"></p>
+        </div>
+        <div class="narrative" id="detail-narrative"></div>
+        <div class="chain">
+          <div class="chain-block">
+            <h4>Value flowing up <span class="chain-count" id="chain-up-count">0</span></h4>
+            <ul id="chain-up"></ul>
+          </div>
+          <div class="chain-block">
+            <h4>Tech below <span class="chain-count" id="chain-down-count">0</span></h4>
+            <ul id="chain-down"></ul>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <span>FinOps Value Map · an open visual model for the FinOps community.</span>
+    <span class="footer-by">Designed by <strong>Pankaj Bajaj</strong>.</span>
+  </footer>
+
+  <div id="tooltip" class="tooltip" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
