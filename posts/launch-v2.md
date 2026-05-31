@@ -26,7 +26,7 @@ The reframe matters: **FinOps isn't the cost police. It's the waste exposer.** E
 🔗 Try it: https://finops-value-map-v2.vercel.app
 (drag any slider, then click **Share** to copy a URL of your scenario — paste your numbers in the comments)
 
-**Next Sunday — v3: RoI.**
+**In a couple of weeks — v3: RoI.**
 We've found the waste. Next question: of the $6.15M that *isn't* waste, what return does it generate? Revenue multipliers, profit multipliers, RoI on AI workloads specifically. That's where tech stops being a cost line and becomes an investment story.
 
 What waste forms am I missing per layer? Drop them in the comments.
