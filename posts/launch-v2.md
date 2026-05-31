@@ -6,13 +6,13 @@
 
 ---
 
-**$10M tech spend. $6.7M lost to waste. Here's where it leaks.**
+**$10M tech spend. $3.85M lost to waste. Here's where it leaks.**
 
 That's what v2 of the FinOps Value Map now exposes — and you can drag sliders to see how the picture changes for any organization.
 
 Last week's v1 showed *what flows where* across 6 layers (Business → Cloud Resource). v2 adds the missing piece: **how much value actually makes it up the chain.**
 
-Five **efficiency dials** between the layers, each measuring how much value flows up vs leaks as waste. Drop cloud-to-platform efficiency from 70% → 40% and the end-to-end value-bearing share collapses from 33% → 19%. Leadership *feels* compounding for the first time.
+Five **efficiency dials** between the layers, each measuring how much value flows up vs leaks as waste. Drop cloud-to-platform efficiency from 85% → 50% and the end-to-end value-bearing share collapses from 62% → 36%. Leadership *feels* compounding for the first time.
 
 The reframe matters: **FinOps isn't the cost police. It's the waste exposer.** Every layer leaks differently:
 
@@ -27,7 +27,7 @@ The reframe matters: **FinOps isn't the cost police. It's the waste exposer.** E
 (drag any slider, then click **Share** to copy a URL of your scenario — paste your numbers in the comments)
 
 **Next Sunday — v3: RoI.**
-We've found the waste. Next question: of the $3.3M that *isn't* waste, what return does it generate? Revenue multipliers, profit multipliers, RoI on AI workloads specifically. That's where tech stops being a cost line and becomes an investment story.
+We've found the waste. Next question: of the $6.15M that *isn't* waste, what return does it generate? Revenue multipliers, profit multipliers, RoI on AI workloads specifically. That's where tech stops being a cost line and becomes an investment story.
 
 What waste forms am I missing per layer? Drop them in the comments.
 

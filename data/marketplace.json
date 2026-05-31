@@ -18,11 +18,11 @@
       "wasteForms": ["Idle VMs", "Unattached storage disks", "Unattached static IPs", "Over-provisioned GPU pools"] }
   ],
   "handovers": [
-    { "id": "H6-5", "fromLayer": "L6", "toLayer": "L5", "label": "Cloud → Platform",     "defaultEfficiency": 0.70 },
-    { "id": "H5-4", "fromLayer": "L5", "toLayer": "L4", "label": "Platform → Microservice","defaultEfficiency": 0.85 },
-    { "id": "H4-3", "fromLayer": "L4", "toLayer": "L3", "label": "Microservice → App",   "defaultEfficiency": 0.90 },
-    { "id": "H3-2", "fromLayer": "L3", "toLayer": "L2", "label": "App → Customer Journey","defaultEfficiency": 0.88 },
-    { "id": "H2-1", "fromLayer": "L2", "toLayer": "L1", "label": "Customer Journey → Business Outcome", "defaultEfficiency": 0.70 }
+    { "id": "H6-5", "fromLayer": "L6", "toLayer": "L5", "label": "Cloud → Platform",     "defaultEfficiency": 0.85 },
+    { "id": "H5-4", "fromLayer": "L5", "toLayer": "L4", "label": "Platform → Microservice","defaultEfficiency": 0.92 },
+    { "id": "H4-3", "fromLayer": "L4", "toLayer": "L3", "label": "Microservice → App",   "defaultEfficiency": 0.94 },
+    { "id": "H3-2", "fromLayer": "L3", "toLayer": "L2", "label": "App → Customer Journey","defaultEfficiency": 0.93 },
+    { "id": "H2-1", "fromLayer": "L2", "toLayer": "L1", "label": "Customer Journey → Business Outcome", "defaultEfficiency": 0.90 }
   ],
   "nodes": [
     { "id": "gmv",            "layer": "L1", "label": "GMV",                "description": "Gross Merchandise Value — total $ of customer transactions.", "examples": "Items sold on a marketplace, bookings on a ride platform." },
