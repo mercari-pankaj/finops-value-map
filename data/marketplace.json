@@ -1,13 +1,28 @@
 {
   "title": "Marketplace FinOps Value Map",
   "subtitle": "An example map: how a marketplace turns cloud + AI consumption into business value.",
+  "topLineInvestment": 10000000,
+  "topLineInvestmentLabel": "$10M annual tech spend",
   "layers": [
-    { "id": "L1", "name": "Business Outcome",        "order": 1, "tint": "#FEE2E2" },
-    { "id": "L2", "name": "Customer Journey",        "order": 2, "tint": "#FFEDD5" },
-    { "id": "L3", "name": "Product / Application",   "order": 3, "tint": "#FEF3C7" },
-    { "id": "L4", "name": "Microservice / Workload", "order": 4, "tint": "#DCFCE7" },
-    { "id": "L5", "name": "Platform / Middleware",   "order": 5, "tint": "#DBEAFE" },
-    { "id": "L6", "name": "Cloud Resource",          "order": 6, "tint": "#EDE9FE" }
+    { "id": "L1", "name": "Business Outcome",        "order": 1, "tint": "#FEE2E2",
+      "wasteForms": ["Refunds & chargebacks", "Returns", "Failed orders", "Fraud losses"] },
+    { "id": "L2", "name": "Customer Journey",        "order": 2, "tint": "#FFEDD5",
+      "wasteForms": ["Cart abandonment", "Browse drop-off", "Failed payments", "Search-with-no-result"] },
+    { "id": "L3", "name": "Product / Application",   "order": 3, "tint": "#FEF3C7",
+      "wasteForms": ["Unused features", "Low-engagement surfaces", "Abandoned A/B experiments", "Dead UI flows"] },
+    { "id": "L4", "name": "Microservice / Workload", "order": 4, "tint": "#DCFCE7",
+      "wasteForms": ["Dead API endpoints", "Redundant services", "Over-replicated workloads", "Idle background jobs"] },
+    { "id": "L5", "name": "Platform / Middleware",   "order": 5, "tint": "#DBEAFE",
+      "wasteForms": ["Oversized databases", "Idle Kafka partitions", "Underused cache nodes", "Over-provisioned CDN regions"] },
+    { "id": "L6", "name": "Cloud Resource",          "order": 6, "tint": "#EDE9FE",
+      "wasteForms": ["Idle VMs", "Unattached storage disks", "Unattached static IPs", "Over-provisioned GPU pools"] }
+  ],
+  "handovers": [
+    { "id": "H6-5", "fromLayer": "L6", "toLayer": "L5", "label": "Cloud → Platform",     "defaultEfficiency": 0.70 },
+    { "id": "H5-4", "fromLayer": "L5", "toLayer": "L4", "label": "Platform → Microservice","defaultEfficiency": 0.85 },
+    { "id": "H4-3", "fromLayer": "L4", "toLayer": "L3", "label": "Microservice → App",   "defaultEfficiency": 0.90 },
+    { "id": "H3-2", "fromLayer": "L3", "toLayer": "L2", "label": "App → Customer Journey","defaultEfficiency": 0.88 },
+    { "id": "H2-1", "fromLayer": "L2", "toLayer": "L1", "label": "Customer Journey → Business Outcome", "defaultEfficiency": 0.70 }
   ],
   "nodes": [
     { "id": "gmv",            "layer": "L1", "label": "GMV",                "description": "Gross Merchandise Value — total $ of customer transactions.", "examples": "Items sold on a marketplace, bookings on a ride platform." },

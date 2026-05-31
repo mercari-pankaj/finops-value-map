@@ -127,6 +127,60 @@ body {
 }
 .ghost-btn:hover { color: var(--header-ink); border-color: rgba(255, 255, 255, 0.4); }
 
+/* Summary banner */
+.summary-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 14px 26px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+  border-bottom: 1px solid var(--border);
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+  flex-wrap: wrap;
+}
+.sb-label {
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: var(--ink-mute);
+}
+.sb-arrow {
+  color: var(--ink-mute);
+  font-size: 18px;
+  font-weight: 300;
+}
+.sb-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  min-width: 80px;
+}
+.sb-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.sb-caption {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  font-weight: 600;
+  margin-top: 2px;
+}
+.sb-eff .sb-value {
+  color: var(--accent-forward);
+  font-size: 26px;
+}
+.sb-value-block .sb-value { color: #047857; }
+.sb-waste-block .sb-value { color: #B91C1C; }
+
 /* Layout */
 .layout {
   flex: 1;
@@ -293,6 +347,148 @@ body.mode-reverse .narrative {
   box-shadow: var(--shadow-md);
   transform: translate(-50%, calc(-100% - 10px));
   white-space: nowrap;
+}
+
+/* Handover strips — slot between layer bands with efficiency dial + slider */
+.handover-strips {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.handover-strip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 18px 0 14px;
+  pointer-events: auto;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-top: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+}
+.handover-label {
+  flex: 0 0 158px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+  line-height: 1.25;
+}
+.handover-label small {
+  display: block;
+  color: var(--ink-mute);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-size: 10.5px;
+  margin-top: 2px;
+}
+.handover-dial {
+  flex: 0 0 64px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.handover-dial svg { display: block; }
+.handover-pct {
+  flex: 0 0 54px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.handover-slider-wrap {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 120px;
+}
+.handover-slider {
+  flex: 1 1 auto;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  height: 24px;
+  cursor: pointer;
+}
+.handover-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  background: linear-gradient(90deg, #DC2626 0%, #F59E0B 50%, var(--accent-forward) 100%);
+  border-radius: 3px;
+}
+.handover-slider::-moz-range-track {
+  height: 6px;
+  background: linear-gradient(90deg, #DC2626 0%, #F59E0B 50%, var(--accent-forward) 100%);
+  border-radius: 3px;
+}
+.handover-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--header-bg);
+  border: 2px solid #FFFFFF;
+  border-radius: 50%;
+  margin-top: -5px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  cursor: grab;
+}
+.handover-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--header-bg);
+  border: 2px solid #FFFFFF;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  cursor: grab;
+}
+.handover-slider:active::-webkit-slider-thumb { cursor: grabbing; }
+.handover-waste {
+  flex: 0 0 100px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #B91C1C;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  letter-spacing: -0.01em;
+}
+.handover-waste small {
+  display: block;
+  color: var(--ink-mute);
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  margin-top: 1px;
+}
+
+/* Waste list in side panel */
+.waste-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.waste-list li {
+  font-size: 12.5px;
+  color: #7F1D1D;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
 }
 
 /* Layer band overlay sits in its own div behind the cytoscape canvas */
