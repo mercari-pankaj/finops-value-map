@@ -1,11 +1,10 @@
-/* FinOps Value Map — interactive renderer */
+/* FinOps Value Map — v3: ROI Portfolio model */
 (() => {
   const LAYER_ORDER = { L1: 0, L2: 1, L3: 2, L4: 3, L5: 4, L6: 5 };
   const NUM_LAYERS = 6;
   const PAD_V = 18;
   const PAD_H = 28;
 
-  // Computed dynamically after canvas measurement
   let computedRowHeight = 120;
 
   const ACCENT = {
@@ -26,7 +25,9 @@
   let mode = "forward";
   let nodesById = {};
   let layersById = {};
+  let outcomeTypesById = {};
   let currentSelection = null;
+  let mapData = null;
 
   const tooltip = document.getElementById("tooltip");
 
@@ -43,6 +44,7 @@
   function buildElements(map) {
     nodesById = Object.fromEntries(map.nodes.map((n) => [n.id, n]));
     layersById = Object.fromEntries(map.layers.map((l) => [l.id, l]));
+    outcomeTypesById = Object.fromEntries((map.outcomeTypes || []).map((o) => [o.id, o]));
 
     const nodes = map.nodes.map((n) => ({
       data: {
@@ -51,17 +53,14 @@
         layer: n.layer,
         description: n.description || "",
         examples: n.examples || "",
+        outcomeType: n.outcomeType || "",
+        roiNote: n.roiNote || "",
       },
       classes: `layer-${n.layer}`,
     }));
 
     const edges = map.edges.map((e, i) => ({
-      data: {
-        id: `e${i}`,
-        source: e.source,
-        target: e.target,
-        note: e.note || "",
-      },
+      data: { id: `e${i}`, source: e.source, target: e.target, note: e.note || "" },
     }));
 
     return [...nodes, ...edges];
@@ -80,7 +79,7 @@
           "text-valign": "center",
           "text-halign": "center",
           color: "#0B1220",
-          "font-size": 14,
+          "font-size": 13,
           "font-weight": 700,
           "font-family": "-apple-system, BlinkMacSystemFont, Inter, Segoe UI, Roboto, sans-serif",
           "text-wrap": "wrap",
@@ -103,120 +102,45 @@
           "curve-style": "bezier",
           "target-arrow-shape": "none",
           "source-arrow-shape": "none",
-          opacity: 0.8,
+          opacity: 0.75,
           "transition-property": "line-color, width, opacity",
           "transition-duration": "180ms",
         },
       },
-
-      // Dimmed (non-selected) state
       { selector: "node.dimmed", style: { opacity: 0.18 } },
       { selector: "edge.dimmed", style: { opacity: 0.06 } },
-
-      // Highlighted nodes
-      {
-        selector: "node.highlighted",
-        style: {
-          "border-width": 3,
-          "background-color": "#FFFFFF",
-        },
-      },
-
-      // Selected (the clicked) node
-      {
-        selector: "node.selected",
-        style: {
-          "border-width": 4,
-          "background-color": "#0B1220",
-          color: "#F8FAFC",
-        },
-      },
-
-      // Forward mode highlight
-      {
-        selector: "edge.path-forward",
-        style: {
-          "line-color": ACCENT.forward.line,
-          width: 2.6,
-          opacity: 1,
-        },
-      },
-      {
-        selector: "node.highlighted.path-forward",
-        style: {
-          "border-color": ACCENT.forward.line,
-          "background-color": "#ECFEF8",
-          color: "#064E3B",
-        },
-      },
-      {
-        selector: "node.selected.path-forward",
-        style: {
-          "background-color": ACCENT.forward.line,
-          "border-color": "#0B1220",
-          color: "#FFFFFF",
-        },
-      },
-
-      // Reverse mode highlight
-      {
-        selector: "edge.path-reverse",
-        style: {
-          "line-color": ACCENT.reverse.line,
-          width: 2.6,
-          opacity: 1,
-        },
-      },
-      {
-        selector: "node.highlighted.path-reverse",
-        style: {
-          "border-color": ACCENT.reverse.line,
-          "background-color": "#FFF7E6",
-          color: "#78350F",
-        },
-      },
-      {
-        selector: "node.selected.path-reverse",
-        style: {
-          "background-color": ACCENT.reverse.line,
-          "border-color": "#0B1220",
-          color: "#FFFFFF",
-        },
-      },
+      { selector: "node.highlighted", style: { "border-width": 3, "background-color": "#FFFFFF" } },
+      { selector: "node.selected", style: { "border-width": 4, "background-color": "#0B1220", color: "#F8FAFC" } },
+      { selector: "edge.path-forward", style: { "line-color": ACCENT.forward.line, width: 2.6, opacity: 1 } },
+      { selector: "node.highlighted.path-forward", style: { "border-color": ACCENT.forward.line, "background-color": "#ECFEF8", color: "#064E3B" } },
+      { selector: "node.selected.path-forward", style: { "background-color": ACCENT.forward.line, "border-color": "#0B1220", color: "#FFFFFF" } },
+      { selector: "edge.path-reverse", style: { "line-color": ACCENT.reverse.line, width: 2.6, opacity: 1 } },
+      { selector: "node.highlighted.path-reverse", style: { "border-color": ACCENT.reverse.line, "background-color": "#FFF7E6", color: "#78350F" } },
+      { selector: "node.selected.path-reverse", style: { "background-color": ACCENT.reverse.line, "border-color": "#0B1220", color: "#FFFFFF" } },
     ];
   }
 
-  // Lay out nodes in screen-space so the 6 layers fill the canvas height
-  // and nodes spread evenly across the canvas width. Uses dagre's relative
-  // X ordering (which minimizes edge crossings) but rescales to fit the
-  // actual container dimensions.
   function layoutFillCanvas() {
     const container = cy.container();
     const cH = container.clientHeight;
     const cW = container.clientWidth;
     if (!cH || !cW) return;
 
-    // Pin zoom first so width/height measurements are at 1:1
     cy.zoom(1);
     cy.pan({ x: 0, y: 0 });
 
     const usableH = Math.max(60, cH - 2 * PAD_V);
     computedRowHeight = usableH / NUM_LAYERS;
 
-    // Group nodes by layer
     const byLayer = {};
     cy.nodes().forEach((n) => {
       const layer = n.data("layer");
       (byLayer[layer] = byLayer[layer] || []).push(n);
     });
 
-    // Find max node width across all rows to inset from edges
     let maxNodeW = 0;
-    cy.nodes().forEach((n) => {
-      const w = n.outerWidth();
-      if (w > maxNodeW) maxNodeW = w;
-    });
-    if (!maxNodeW) maxNodeW = 130; // safety fallback
+    cy.nodes().forEach((n) => { const w = n.outerWidth(); if (w > maxNodeW) maxNodeW = w; });
+    if (!maxNodeW) maxNodeW = 130;
 
     const insetX = Math.max(PAD_H, maxNodeW / 2 + 6);
     const spreadW = Math.max(1, cW - 2 * insetX);
@@ -228,8 +152,7 @@
         const y = layerY(layerId);
         nodes.forEach((n, i) => {
           const t = count === 1 ? 0.5 : i / (count - 1);
-          const x = insetX + t * spreadW;
-          n.position({ x, y });
+          n.position({ x: insetX + t * spreadW, y });
         });
       });
     });
@@ -263,6 +186,35 @@
     });
   }
 
+  function initROIBanner() {
+    const container = document.getElementById("sb-outcome-types");
+    if (!container || !mapData.outcomeTypes) return;
+    mapData.outcomeTypes.forEach((ot) => {
+      const pill = document.createElement("div");
+      pill.className = "roi-pill";
+      pill.style.background = ot.bg;
+      pill.style.color = ot.color;
+      pill.innerHTML = `<span class="roi-pill-icon">${ot.icon}</span><span class="roi-pill-label">${ot.label}</span>`;
+      container.appendChild(pill);
+    });
+  }
+
+  function initOutcomeLegend() {
+    const container = document.getElementById("outcome-legend");
+    if (!container || !mapData.outcomeTypes) return;
+    mapData.outcomeTypes.forEach((ot) => {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <span class="outcome-legend-icon">${ot.icon}</span>
+        <div class="outcome-legend-body">
+          <div class="outcome-legend-label">${ot.label}</div>
+          <div class="outcome-legend-desc">${ot.description}</div>
+        </div>
+      `;
+      container.appendChild(li);
+    });
+  }
+
   function highlight(node) {
     cy.elements().removeClass("highlighted selected path-forward path-reverse dimmed");
 
@@ -272,7 +224,6 @@
     const descendantsEdges = node.successors("edge");
 
     const upClass = `path-${mode}`;
-
     const highlightedNodes = node.union(ancestors).union(descendants);
     const highlightedEdges = ancestorsEdges.union(descendantsEdges);
 
@@ -305,10 +256,21 @@
 
     const data = node.data();
     const layer = layersById[data.layer];
+    const ot = outcomeTypesById[data.outcomeType];
 
     document.getElementById("detail-title").textContent = data.label;
     document.getElementById("detail-layer").textContent = layer?.name || data.layer;
     document.getElementById("detail-desc").textContent = data.description;
+
+    const badge = document.getElementById("detail-outcome-badge");
+    if (ot && badge) {
+      badge.textContent = `${ot.icon} ${ot.label}`;
+      badge.style.background = ot.bg;
+      badge.style.color = ot.color;
+      badge.hidden = false;
+    } else if (badge) {
+      badge.hidden = true;
+    }
 
     const examplesWrap = document.getElementById("detail-examples-wrap");
     if (data.examples) {
@@ -318,7 +280,16 @@
       examplesWrap.hidden = true;
     }
 
-    const narrative = buildNarrative(data, layer, ancestors.length, descendants.length);
+    const roiWrap = document.getElementById("detail-roi-wrap");
+    const roiNote = document.getElementById("detail-roi-note");
+    if (data.roiNote && roiWrap && roiNote) {
+      roiNote.textContent = data.roiNote;
+      roiWrap.hidden = false;
+    } else if (roiWrap) {
+      roiWrap.hidden = true;
+    }
+
+    const narrative = buildNarrative(data, layer, ancestors.length, descendants.length, ot);
     document.getElementById("detail-narrative").innerHTML = narrative;
 
     const upList = document.getElementById("chain-up");
@@ -344,23 +315,25 @@
     document.getElementById("chain-down-count").textContent = descendants.length;
   }
 
-  function buildNarrative(data, layer, upCount, downCount) {
+  function buildNarrative(data, layer, upCount, downCount, ot) {
+    const typeTag = ot ? `${ot.icon} <strong>${ot.label}</strong>` : "";
+
     if (mode === "forward") {
       if (downCount === 0) {
-        return `<strong>${data.label}</strong> is a foundation resource — every business outcome above it is built on top of resources like this.`;
+        return `<strong>${data.label}</strong> is a foundation resource. Every ${typeTag || "business"} outcome above depends on investments like this.`;
       }
       if (upCount === 0) {
-        return `<strong>${data.label}</strong> sits at the top of the value chain. <strong>${downCount}</strong> tech components below contribute to delivering it.`;
+        return `<strong>${data.label}</strong> is a ${typeTag} outcome. <strong>${downCount}</strong> tech components below contribute to delivering it.`;
       }
-      return `<strong>Forward view:</strong> using <strong>${data.label}</strong> contributes to <strong>${upCount}</strong> upstream value drivers and depends on <strong>${downCount}</strong> components below.`;
+      return `<strong>Forward:</strong> <strong>${data.label}</strong> contributes to <strong>${upCount}</strong> upstream outcomes and depends on <strong>${downCount}</strong> components below.`;
     } else {
       if (downCount === 0) {
-        return `<strong>Reverse view:</strong> if <strong>${data.label}</strong> degrades, every business outcome shown above is at risk.`;
+        return `<strong>Reverse:</strong> if <strong>${data.label}</strong> degrades, every ${typeTag || ""} outcome shown above is at risk. This is underinvestment risk.`;
       }
       if (upCount === 0) {
-        return `<strong>Reverse view:</strong> if any of the <strong>${downCount}</strong> tech components below fails or is removed, <strong>${data.label}</strong> is at risk.`;
+        return `<strong>Reverse:</strong> if <strong>${data.label}</strong> is cut or fails, <strong>${downCount}</strong> components below lose their value justification — stranded cost with no return.`;
       }
-      return `<strong>Reverse view:</strong> a problem at <strong>${data.label}</strong> can break <strong>${upCount}</strong> upstream value drivers and depends on <strong>${downCount}</strong> components below staying healthy.`;
+      return `<strong>Reverse:</strong> degrading <strong>${data.label}</strong> puts <strong>${upCount}</strong> upstream outcomes at risk. <strong>${downCount}</strong> components below become unjustified spend. Don't cut blindly.`;
     }
   }
 
@@ -368,13 +341,11 @@
     mode = newMode;
     document.body.classList.toggle("mode-reverse", mode === "reverse");
     document.body.classList.toggle("mode-forward", mode === "forward");
-
     document.getElementById("mode-forward").classList.toggle("active", mode === "forward");
     document.getElementById("mode-reverse").classList.toggle("active", mode === "reverse");
     document.getElementById("mode-forward").setAttribute("aria-selected", mode === "forward");
     document.getElementById("mode-reverse").setAttribute("aria-selected", mode === "reverse");
 
-    // Re-apply highlighting in new mode if there's a selection
     if (currentSelection) {
       const node = cy.getElementById(currentSelection);
       if (node && node.length) highlight(node);
@@ -382,30 +353,23 @@
   }
 
   function attachInteractions() {
-    cy.on("tap", "node", (evt) => {
-      highlight(evt.target);
-    });
-
-    cy.on("tap", (evt) => {
-      if (evt.target === cy) clearHighlight();
-    });
+    cy.on("tap", "node", (evt) => highlight(evt.target));
+    cy.on("tap", (evt) => { if (evt.target === cy) clearHighlight(); });
 
     cy.on("mouseover", "node", (evt) => {
       const n = evt.target;
+      const ot = outcomeTypesById[n.data("outcomeType")];
       const layer = layersById[n.data("layer")];
-      tooltip.textContent = `${n.data("label")} — ${layer?.name || ""}`;
+      const otTag = ot ? ` · ${ot.icon} ${ot.label}` : "";
+      tooltip.textContent = `${n.data("label")} — ${layer?.name || ""}${otTag}`;
       tooltip.hidden = false;
     });
-    cy.on("mouseout", "node", () => {
-      tooltip.hidden = true;
-    });
+    cy.on("mouseout", "node", () => { tooltip.hidden = true; });
     document.addEventListener("mousemove", (e) => {
       if (tooltip.hidden) return;
       tooltip.style.left = `${e.clientX}px`;
       tooltip.style.top = `${e.clientY}px`;
     });
-
-    cy.on("pan zoom resize", () => drawLayerBands());
 
     document.getElementById("mode-forward").addEventListener("click", () => setMode("forward"));
     document.getElementById("mode-reverse").addEventListener("click", () => setMode("reverse"));
@@ -417,17 +381,16 @@
       console.error("Cytoscape not loaded");
       return;
     }
-    // Register dagre layout
     if (typeof cytoscapeDagre !== "undefined") {
       cytoscape.use(cytoscapeDagre);
     }
 
-    const map = await loadMap();
-    document.title = map.title ? `${map.title} — FinOps Value Map` : "FinOps Value Map";
+    mapData = await loadMap();
+    document.title = mapData.title ? `${mapData.title} — FinOps Value Map` : "FinOps Value Map";
 
     cy = cytoscape({
       container: document.getElementById("cy"),
-      elements: buildElements(map),
+      elements: buildElements(mapData),
       style: styleSpec(),
       layout: {
         name: "dagre",
@@ -451,6 +414,8 @@
       });
     });
 
+    initROIBanner();
+    initOutcomeLegend();
     attachInteractions();
     setMode("forward");
 
