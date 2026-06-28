@@ -7,7 +7,7 @@
   <meta name="description" content="An interactive map that connects cloud + AI consumption to business value. Built for the FinOps community." />
 
   <meta property="og:title" content="The FinOps Value Map" />
-  <meta property="og:description" content="Connect the dots from cloud compute & AI to GMV, revenue, and customer outcomes." />
+  <meta property="og:description" content="Not every dollar returns revenue — ROI is a portfolio of value types. An open visual model for the FinOps community." />
   <meta property="og:type" content="website" />
 
   <link rel="preconnect" href="https://unpkg.com" />
@@ -40,19 +40,25 @@
     </div>
   </header>
 
+  <section class="roi-banner" id="roi-banner">
+    <div class="roi-banner-label">Tech investment returns a <strong>portfolio of value</strong> — not just revenue:</div>
+    <div class="roi-pills" id="sb-outcome-types"></div>
+  </section>
+
   <main class="layout">
     <section class="map-wrap">
       <div class="cy-wrap">
         <div id="layer-bands-bg" class="layer-bands-bg" aria-hidden="true"></div>
         <div id="cy" class="cy"></div>
       </div>
-      <div class="hint">Click any node to trace its full value chain. Click empty space to reset.</div>
+      <div class="hint">Click any node to explore its value type and ROI story. Click empty space to reset.</div>
     </section>
 
     <aside id="side-panel" class="side-panel empty">
       <div class="side-empty">
         <h2>Pick a node</h2>
-        <p>Click anything on the map — a business outcome, a service, or a cloud resource — and the connected chain will light up here.</p>
+        <p>Click anything on the map — a business outcome, a service, or a cloud resource — and its full value chain and ROI story will appear here.</p>
+        <h4>Layers</h4>
         <ul class="legend">
           <li><span class="layer-chip" data-layer="L1"></span> Business Outcome</li>
           <li><span class="layer-chip" data-layer="L2"></span> Customer Journey</li>
@@ -61,17 +67,26 @@
           <li><span class="layer-chip" data-layer="L5"></span> Platform / Middleware</li>
           <li><span class="layer-chip" data-layer="L6"></span> Cloud Resource</li>
         </ul>
+        <h4>Value Types</h4>
+        <ul class="outcome-legend" id="outcome-legend"></ul>
       </div>
 
       <div class="side-detail" hidden>
         <div class="side-header">
-          <span id="detail-layer" class="layer-tag"></span>
+          <div class="side-header-tags">
+            <span id="detail-layer" class="layer-tag"></span>
+            <span id="detail-outcome-badge" class="outcome-badge" hidden></span>
+          </div>
           <h2 id="detail-title"></h2>
         </div>
         <p id="detail-desc" class="detail-desc"></p>
         <div id="detail-examples-wrap" hidden>
           <h4>Examples</h4>
           <p id="detail-examples"></p>
+        </div>
+        <div id="detail-roi-wrap" hidden>
+          <h4>ROI Story</h4>
+          <p id="detail-roi-note" class="roi-note"></p>
         </div>
         <div class="narrative" id="detail-narrative"></div>
         <div class="chain">
